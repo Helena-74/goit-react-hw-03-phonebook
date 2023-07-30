@@ -4,29 +4,35 @@ import ContactList from './ContactList/ContactList';
 import Filter from './Filter/Filter';
 
 class App extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      contacts: [],
-      filter: '',
-    };
-  }
+  state = {
+    contacts: [],
+    filter: '',
+  };
 
   componentDidMount() {
-    const storedContacts = localStorage.getItem('contacts');
-    if (storedContacts) {
-      this.setState({ contacts: JSON.parse(storedContacts) });
+    const savedContacts = localStorage.getItem('contacts');
+
+    if (savedContacts) {
+      this.setState({ contacts: JSON.parse(savedContacts) });
     }
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { contacts } = this.state;
-    if (prevState.contacts !== contacts) {
-      localStorage.setItem('contacts', JSON.stringify(contacts));
+    
+    if (prevState.contacts !== this.state.contacts) {
+      localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
     }
   }
 
   addContact = newContact => {
+    const { contacts } = this.state;
+    const { name } = newContact;
+
+    if (contacts.some(contact => contact.name.toLowerCase() === name.toLowerCase())) {
+      alert(`${name} is already in contacts.`);
+      return;
+    }
+
     this.setState(prevState => ({
       contacts: [...prevState.contacts, newContact],
     }));
@@ -51,7 +57,7 @@ class App extends Component {
     return (
       <div>
         <h1>Phonebook</h1>
-        <ContactForm contacts={contacts} onSubmit={this.addContact} />
+        <ContactForm onSubmit={this.addContact} />
 
         <h2>Contacts</h2>
         <Filter value={filter} onChange={this.handleChangeFilter} />
